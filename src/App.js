@@ -1,6 +1,7 @@
 
 import React from 'react';
 
+import lodash from 'lodash'
 import Chart from './components/example/Main'
 
 import { getKline, lastKline, getQuote } from './service/traderoom.js'
@@ -65,6 +66,24 @@ class ChartComponent extends React.Component {
 			period: 6,
 			showPeriodList: false,
 			showIndicatorList: false,
+			indicateList : [
+				{ title: 'MACD', value: 'macd', type: 'indicator' ,isChart:true},
+				{ title: 'ATR', value: 'atr', type: 'indicator' ,isChart:true},
+				{ title: 'BOLL', value: 'bollingerBand', type: 'indicator' ,isChart:false},
+				{ title: 'CCI', value: 'cci', type: 'indicator' ,isChart:true},
+				{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator' ,isChart:false},
+				{ title: 'KDJ', value: 'kdj', type: 'indicator' ,isChart:true},
+				{ title: 'Elder Ray', value: 'elderRay', type: 'indicator' ,isChart:true},
+				{ title: 'Force Index', value: 'forceIndex', type: 'indicator' ,isChart:true},
+				{ title: 'EMA', value: 'ema', type: 'ma' ,isChart:false},
+				{ title: 'sma', value: 'sma', type: 'ma' ,isChart:false},
+				{ title: 'TMA', value: 'tma', type: 'ma' ,isChart:false},
+				{ title: 'WMA', value: 'wma', type: 'ma' ,isChart:false},
+				{ title: 'RSI', value: 'rsi', type: 'indicator' ,isChart:true},
+				{ title: 'SAR', value: 'sar', type: 'indicator' ,isChart:false},
+				{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator' ,isChart:true},
+				{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator' ,isChart:false},
+			]
 		}
 	}
 	componentDidMount() {
@@ -137,8 +156,9 @@ class ChartComponent extends React.Component {
 	//添加指标
 	onAddIndicator(e) {
 		this.setState({showIndicatorList:false})
-		let {selectedIndicator} = this.state
-		selectedIndicator.push(indicateList[e])
+		let {selectedIndicator,indicateList} = this.state
+		const newIndicator = lodash.cloneDeep(indicateList[e])
+		selectedIndicator.push(newIndicator)
 		this.setState({selectedIndicator})
 	}
 
@@ -149,7 +169,7 @@ class ChartComponent extends React.Component {
 
 		//合并默认指标
 		selectedIndicator = [...defaultIndicator, ...defaultMA,...selectedIndicator]
-
+	
 		return (
 			<div className="stock-chart-wrapper">
 				<div className="chart-title">

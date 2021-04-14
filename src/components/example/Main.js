@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+
 import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";
 
@@ -27,7 +28,7 @@ import { fitWidth } from "../Stockcharts/lib/helper";
 import { formatNumber } from '../Stockcharts/lib/utils/index'
 // import { last } from "../Stockcharts/lib/utils";
 import { ma, macd, sma } from "../Stockcharts/lib/indicator";
-import { MACD, Vol } from '../Stockcharts/charts/index'
+import { MACD, Vol,MovingAverage } from '../Stockcharts/charts/index'
 
 
 const IndicatorList = {
@@ -57,10 +58,9 @@ class MainCharts extends React.Component {
 		let { type, data: initialData, width, ratio, options, period, height, selectedIndicator } = this.props;
 
 		let indicatorcharts = selectedIndicator.filter(item => item.isChart)   //指标图标
-		const averageLine = selectedIndicator.filter(item => item.type==='ma')   //均线
-		// console.log(averageLine)
+		const movingAverage = selectedIndicator.filter(item => item.type==='ma')   //均线
+		// console.log(movingAverage)
 		//计算各个图标高度
-		
 		const indicatorChartNum = indicatorcharts.length     
 	
 		const candleChartHeight = (height - 50) / 3 * 2.5 - indicatorChartNum * 40
@@ -79,7 +79,7 @@ class MainCharts extends React.Component {
 		let calculatedData = initialData;
 
 
-		averageLine.forEach((item,index)=>{
+		movingAverage.forEach((item,index)=>{
 			if (IndicatorList[item.value]) {
 				let indicator = IndicatorList[item.value]
 				let calculator = indicator().id(index).options(item.options?item.options:{}).merge((d, c) => { d[item.title] = c }).accessor(d => d[item.title])
@@ -88,7 +88,9 @@ class MainCharts extends React.Component {
 			}
 			
 		})
-		const movingAverageTooltipOption = averageLine.map(item=>{
+
+
+		const movingAverageTooltipOption = movingAverage.map(item=>{
 			return {
 				yAccessor: item.calculator.accessor(),
 				type: item.value,
@@ -98,69 +100,39 @@ class MainCharts extends React.Component {
 		})
 
 		
-		console.log(indicatorcharts)
-		for(let i=0;i<indicatorcharts.length;i++){
-			const height = 550 - (indicatorChartNum - i) * indicatorChartHeight
+		
+		
+		
+		indicatorcharts.forEach((item, index) => {
+	
 			// console.log(height)
 			//指标原点返回值
-			indicatorcharts[i].origin = [0, height]
-			
-			indicatorcharts[i].timeFormatForPeriod = timeFormatForPeriod
-			indicatorcharts[i].indicatorChartHeight = indicatorChartHeight
+			item.origin = (w,h)=>[0, h - (indicatorChartNum - index) * indicatorChartHeight]
+		
+			item.timeFormatForPeriod = timeFormatForPeriod
+			item.indicatorChartHeight = indicatorChartHeight
 
 			//配置图标
-			if (indicatorcharts[i].value === 'vol') {
-				indicatorcharts[i].yExtents = d => d.volume
-				indicatorcharts[i].padding = { top: 10, bottom: 0 }
-			} else if (indicatorcharts[i].value === 'macd') {
-				indicatorcharts[i].yExtents = d => d.macd
-				indicatorcharts[i].padding = { top: 10, bottom: 10 }
+			if (item.value === 'vol') {
+				item.yExtents = d => d.volume
+				item.padding = { top: 10, bottom: 0 }
+			} else if (item.value === 'macd') {
+				item.yExtents = d => d.macd
+				item.padding = { top: 10, bottom: 10 }
 			}
 
 
 			let calculator
-			if (IndicatorList[indicatorcharts[i].value]) {
-				let indicator = IndicatorList[indicatorcharts[i].value]
+			if (IndicatorList[item.value]) {
+				let indicator = IndicatorList[item.value]
 
-				calculator = indicator().options(indicatorcharts[i].options?indicatorcharts[i].options:{}).merge((d, c) => { d[indicatorcharts[i].value] = c }).accessor(d => d[indicatorcharts[i].value])
+				calculator = indicator().options(item.options?item.options:{}).merge((d, c) => { d[item.value] = c }).accessor(d => d[item.value])
 				calculatedData = calculator(calculatedData)
 			}
-			indicatorcharts[i].calculator = calculator
-			console.log(indicatorcharts[i].origin)
-		}
+			item.calculator = calculator
+	
+		})
 		
-		
-		// indicatorcharts = indicatorcharts.map((indicatorcharts[i], index) => {
-		// 	let num = index
-		// 	const height = 550 - (indicatorChartNum - num) * indicatorChartHeight
-		// 	// console.log(height)
-		// 	//指标原点返回值
-		// 	item.origin = [0, height]
-		// 	console.log(item.origin)
-		// 	item.timeFormatForPeriod = timeFormatForPeriod
-		// 	item.indicatorChartHeight = indicatorChartHeight
-
-		// 	//配置图标
-		// 	if (item.value === 'vol') {
-		// 		item.yExtents = d => d.volume
-		// 		item.padding = { top: 10, bottom: 0 }
-		// 	} else if (item.value === 'macd') {
-		// 		item.yExtents = d => d.macd
-		// 		item.padding = { top: 10, bottom: 10 }
-		// 	}
-
-
-		// 	let calculator
-		// 	if (IndicatorList[item.value]) {
-		// 		let indicator = IndicatorList[item.value]
-
-		// 		calculator = indicator().options(item.options?item.options:{}).merge((d, c) => { d[item.value] = c }).accessor(d => d[item.value])
-		// 		calculatedData = calculator(calculatedData)
-		// 	}
-		// 	item.calculator = calculator
-		// 	return item
-
-		// })
 
 		
 
@@ -194,7 +166,7 @@ class MainCharts extends React.Component {
 				xAccessor={xAccessor}
 				displayXAccessor={displayXAccessor}
 				xExtents={xExtents}>
-				>
+				
 				<Chart id={1} height={candleChartHeight}
 					yExtents={[d => [d.high, d.low]]}
 					padding={{ top: 50, bottom: 20 }}
@@ -217,12 +189,9 @@ class MainCharts extends React.Component {
 						opacity={0.7}
 					/>
 
-					{averageLine.map((item,index)=>{
+					{movingAverage.map((item,index)=>{
 						return (
-							<>
-								<LineSeries yAccessor={item.calculator.accessor()} stroke={item.calculator.stroke()} />
-								<CurrentCoordinate yAccessor={item.calculator.accessor()} fill={item.calculator.stroke()} />
-							</>
+							<MovingAverage {...item} key={index}/>
 						)
 					})}
 
@@ -248,9 +217,8 @@ class MainCharts extends React.Component {
 					<OHLCTooltip origin={[0, 0]} textFill={'#999'} />
 				</Chart>
 
-				{/* {indicatorcharts.map((item, index) => {
+				{indicatorcharts.map((item, index) => {
 					const Component = ChartComponent[item.value]
-
 					return (
 						<Chart
 							id={index + 2}
@@ -263,7 +231,7 @@ class MainCharts extends React.Component {
 							<Component {...item} />
 						</Chart>
 					)
-				})} */}
+				})}
 
 
 				<CrossHairCursor />
