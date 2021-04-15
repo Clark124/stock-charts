@@ -1,68 +1,64 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-
-import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";
 
 import { ChartCanvas, Chart } from "../Stockcharts";
-import {
-	BarSeries,
-	// AreaRangeSeries,
-	CandlestickSeries,
-	LineSeries,
-	MACDSeries,
-} from "../Stockcharts/lib/series";
-import { XAxis, YAxis } from "../Stockcharts/lib/axes";
+// import {} from "../Stockcharts/lib/series";
+import { XAxis } from "../Stockcharts/lib/axes";
 import {
 	CrossHairCursor,
-	EdgeIndicator,
-	CurrentCoordinate,
 	MouseCoordinateX,
-	MouseCoordinateY,
 } from "../Stockcharts/lib/coordinates";
 
 import { discontinuousTimeScaleProvider } from "../Stockcharts/lib/scale";
-import { OHLCTooltip, MovingAverageTooltip, MACDTooltip, } from "../Stockcharts/lib/tooltip";
+import { MovingAverageTooltip, } from "../Stockcharts/lib/tooltip";
 import { fitWidth } from "../Stockcharts/lib/helper";
-import { formatNumber } from '../Stockcharts/lib/utils/index'
+// import { formatNumber } from '../Stockcharts/lib/utils/index'
 // import { last } from "../Stockcharts/lib/utils";
-import { ma, macd, sma } from "../Stockcharts/lib/indicator";
-import { MACD, Vol,MovingAverage } from '../Stockcharts/charts/index'
+import { ma, macd, sma, atr, cci, kdj, bollingerBand } from "../Stockcharts/lib/indicator";  //用于计算
+import { MACD, Vol, MovingAverage, CandleChart, ATR, CCI, KDJ, BollingerBand } from '../Stockcharts/charts/index'  //指标图形
 
 
 const IndicatorList = {
-	ma, macd, sma
+	ma, macd, sma, atr, cci, kdj, bollingerBand
 }
+
 const ChartComponent = {
 	macd: MACD,
-	vol: Vol
+	vol: Vol,
+	atr: ATR,
+	cci: CCI,
+	kdj: KDJ,
+	bollingerBand: BollingerBand
 }
 
 const mouseEdgeAppearance = {
-    textFill: "#542605",
-    stroke: "#FFFFFF",
-    strokeOpacity: 1,
-    strokeWidth: 1,
-    arrowWidth: 5,
-    fill: "#BCDEFA",
+	textFill: "#542605",
+	stroke: "#FFFFFF",
+	strokeOpacity: 1,
+	strokeWidth: 1,
+	arrowWidth: 5,
+	fill: "#BCDEFA",
 };
 
 
 // const areaRegion = [90, 150]
 
 
-
 class MainCharts extends React.Component {
+
+	
 	render() {
-		let { type, data: initialData, width, ratio, options, period, height, selectedIndicator } = this.props;
+		let { type, data: initialData, width, ratio, period, height, selectedIndicator } = this.props;
 
 		let indicatorcharts = selectedIndicator.filter(item => item.isChart)   //指标图标
-		const movingAverage = selectedIndicator.filter(item => item.type==='ma')   //均线
+		const movingAverage = selectedIndicator.filter(item => item.type === 'ma')   //均线
+		const candleArea = selectedIndicator.filter(item => item.candleArea)  //K线图区域图
 		// console.log(movingAverage)
 		//计算各个图标高度
-		const indicatorChartNum = indicatorcharts.length     
-	
+		const indicatorChartNum = indicatorcharts.length
+
 		const candleChartHeight = (height - 50) / 3 * 2.5 - indicatorChartNum * 40
 		const indicatorChartHeight = (height - 50 - candleChartHeight) / indicatorChartNum
 
@@ -77,38 +73,39 @@ class MainCharts extends React.Component {
 
 
 		let calculatedData = initialData;
-
-
-		movingAverage.forEach((item,index)=>{
+		movingAverage.forEach((item, index) => {
 			if (IndicatorList[item.value]) {
 				let indicator = IndicatorList[item.value]
-				let calculator = indicator().id(index).options(item.options?item.options:{}).merge((d, c) => { d[item.title] = c }).accessor(d => d[item.title])
+				let calculator = indicator().id(index).options(item.options ? item.options : {}).merge((d, c) => { d[item.title] = c }).accessor(d => d[item.title])
 				calculatedData = calculator(calculatedData)
 				item.calculator = calculator
 			}
-			
+
 		})
 
-
-		const movingAverageTooltipOption = movingAverage.map(item=>{
+		const movingAverageTooltipOption = movingAverage.map(item => {
+			console.log(item)
 			return {
 				yAccessor: item.calculator.accessor(),
 				type: item.value,
 				stroke: item.calculator.stroke(),
 				windowSize: item.calculator.options().windowSize,
+				indicatorId:item.indicatorId
 			}
 		})
 
-		
-		
-		
-		
+		candleArea.forEach((item, index) => {
+			if (IndicatorList[item.value]) {
+				let indicator = IndicatorList[item.value]
+				let calculator = indicator().options(item.options ? item.options : {}).merge((d, c) => { d[item.value] = c }).accessor(d => d[item.value])
+				calculatedData = calculator(calculatedData)
+				item.calculator = calculator
+			}
+		})
+
 		indicatorcharts.forEach((item, index) => {
-	
-			// console.log(height)
 			//指标原点返回值
-			item.origin = (w,h)=>[0, h - (indicatorChartNum - index) * indicatorChartHeight]
-		
+			item.origin = (w, h) => [0, h - (indicatorChartNum - index) * indicatorChartHeight]
 			item.timeFormatForPeriod = timeFormatForPeriod
 			item.indicatorChartHeight = indicatorChartHeight
 
@@ -119,6 +116,9 @@ class MainCharts extends React.Component {
 			} else if (item.value === 'macd') {
 				item.yExtents = d => d.macd
 				item.padding = { top: 10, bottom: 10 }
+			} else if (item.value === 'atr' || item.value === 'cci' || item.value === 'kdj') {
+				item.yExtents = d => d[item.value]
+				item.padding = { top: 10, bottom: 10 }
 			}
 
 
@@ -126,26 +126,16 @@ class MainCharts extends React.Component {
 			if (IndicatorList[item.value]) {
 				let indicator = IndicatorList[item.value]
 
-				calculator = indicator().options(item.options?item.options:{}).merge((d, c) => { d[item.value] = c }).accessor(d => d[item.value])
+				calculator = indicator().options(item.options ? item.options : {}).merge((d, c) => { d[item.value] = c }).accessor(d => d[item.value])
 				calculatedData = calculator(calculatedData)
 			}
 			item.calculator = calculator
-	
+
 		})
-		
-
-		
-
 
 		const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(d => d.date);
+		const { data, xScale, xAccessor, displayXAccessor, } = xScaleProvider(calculatedData);
 
-		const {
-			data,
-			xScale,
-			xAccessor,
-			displayXAccessor,
-		} = xScaleProvider(calculatedData);
-		
 		//截取最近150根线
 		const start = data.length + 10
 		let end = 0
@@ -166,32 +156,24 @@ class MainCharts extends React.Component {
 				xAccessor={xAccessor}
 				displayXAccessor={displayXAccessor}
 				xExtents={xExtents}>
-				
+
 				<Chart id={1} height={candleChartHeight}
 					yExtents={[d => [d.high, d.low]]}
 					padding={{ top: 50, bottom: 20 }}
 				>
-					<XAxis axisAt="bottom" orient="bottom" showTicks={false} outerTickSize={0} stroke={'#333333'} />
-					<YAxis axisAt="right" orient="right" ticks={5} />
+					<CandleChart />
 
-					<MouseCoordinateY
-						at="right"
-						orient="right"
-						displayFormat={format(".2f")}
-						{...mouseEdgeAppearance}
-					/>
-
-					{/* 蜡烛图 */}
-					<CandlestickSeries
-						fill={d => d.close > d.open ? options.upColor : options.downColor}
-						stroke={d => d.close > d.open ? options.upColor : options.downColor}
-						wickStroke={d => d.close > d.open ? options.upColor : options.downColor}
-						opacity={0.7}
-					/>
-
-					{movingAverage.map((item,index)=>{
+					{candleArea.map((item, index) => {
+						const Component = ChartComponent[item.value]
 						return (
-							<MovingAverage {...item} key={index}/>
+							<Component {...item} key={index} />
+						)
+					})}
+
+
+					{movingAverage.map((item, index) => {
+						return (
+							<MovingAverage {...item} key={index} selectedIndex={index}/>
 						)
 					})}
 
@@ -202,19 +184,7 @@ class MainCharts extends React.Component {
 						options={movingAverageTooltipOption}
 					/>
 
-					{/* Y轴最后的显示 */}
-					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
-						yAccessor={d => d.close}
-						fill={d => d.close > d.open ? options.upColor : options.downColor}
-						stroke={d => d.close > d.open ? options.upColor : options.downColor}
-						textFill={d => d.close > d.open ? "#fff" : "#fff"}
-						strokeOpacity={1}
-						strokeWidth={3}
-						arrowWidth={2}
-					/>
 
-					{/* 时间 高开低收 成交量 */}
-					<OHLCTooltip origin={[0, 0]} textFill={'#999'} />
 				</Chart>
 
 				{indicatorcharts.map((item, index) => {
@@ -228,7 +198,22 @@ class MainCharts extends React.Component {
 							padding={item.padding}
 							key={index + 2}
 						>
-							<Component {...item} />
+							<Component {...item} >
+								{indicatorcharts.length === index + 1 ?
+									<>
+										<XAxis axisAt="bottom" orient="bottom" />
+										<MouseCoordinateX
+											at="bottom"
+											orient="bottom"
+											displayFormat={timeFormat(timeFormatForPeriod)}
+											rectRadius={5}
+											{...mouseEdgeAppearance}
+										/>
+									</> : <XAxis axisAt="bottom" orient="bottom" showTicks={false} outerTickSize={0} stroke={'#333333'} />
+
+
+								}
+							</Component>
 						</Chart>
 					)
 				})}

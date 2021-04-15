@@ -18,3 +18,4 @@ export { default as elderRay } from "./elderRay";
 export { default as sar } from "./sar";
 export { default as compare } from "./compare";
 export { default as change } from "./change";
+export { default as kdj} from './kdj'

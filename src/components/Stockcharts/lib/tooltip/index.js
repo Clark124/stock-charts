@@ -9,3 +9,4 @@ export { default as HoverTooltip } from "./HoverTooltip";
 export { default as ToolTipText } from "./ToolTipText";
 export { default as ToolTipTSpanLabel } from "./ToolTipTSpanLabel";
 export { default as GroupTooltip } from "./GroupTooltip";
+export { default as KdjTooltip} from './kdjTooltip'

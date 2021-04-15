@@ -17,6 +17,7 @@ class SingleMAToolTip extends Component {
 		this.handleClick = this.handleClick.bind(this);
 	}
 	handleClick(e) {
+		console.log(this.props)
 		const { onClick, forChart, options } = this.props;
 		onClick({ chartId: forChart, ...options }, e);
 	}

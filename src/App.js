@@ -16,35 +16,34 @@ const options = {
 
 //指标列表
 const indicateList = [
-	{ title: 'MACD', value: 'macd', type: 'indicator' ,isChart:true},
-	{ title: 'ATR', value: 'atr', type: 'indicator' ,isChart:true},
-	{ title: 'BOLL', value: 'bollingerBand', type: 'indicator' ,isChart:false},
-	{ title: 'CCI', value: 'cci', type: 'indicator' ,isChart:true},
-	{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator' ,isChart:false},
-	{ title: 'KDJ', value: 'kdj', type: 'indicator' ,isChart:true},
-	{ title: 'Elder Ray', value: 'elderRay', type: 'indicator' ,isChart:true},
-	{ title: 'Force Index', value: 'forceIndex', type: 'indicator' ,isChart:true},
-	{ title: 'EMA', value: 'ema', type: 'ma' ,isChart:false},
-	{ title: 'SMA', value: 'sma', type: 'ma' ,isChart:false},
-	{ title: 'TMA', value: 'tma', type: 'ma' ,isChart:false},
-	{ title: 'WMA', value: 'wma', type: 'ma' ,isChart:false},
-	{ title: 'RSI', value: 'rsi', type: 'indicator' ,isChart:true},
-	{ title: 'SAR', value: 'sar', type: 'indicator' ,isChart:false},
-	{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator' ,isChart:true},
-	{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator' ,isChart:false},
+	{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true },
+	{ title: 'ATR', value: 'atr', type: 'indicator', isChart: true },
+	{ title: 'BOLL', value: 'bollingerBand', type: 'indicator', isChart: false, candleArea: true },
+	{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true },
+	{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator', isChart: false },
+	{ title: 'KDJ', value: 'kdj', type: 'indicator', isChart: true },
+	{ title: 'Elder Ray', value: 'elderRay', type: 'indicator', isChart: true },
+	{ title: 'Force Index', value: 'forceIndex', type: 'indicator', isChart: true },
+	{ title: 'EMA', value: 'ema', type: 'ma', isChart: false },
+	{ title: 'SMA', value: 'sma', type: 'ma', isChart: false },
+	{ title: 'TMA', value: 'tma', type: 'ma', isChart: false },
+	{ title: 'WMA', value: 'wma', type: 'ma', isChart: false },
+	{ title: 'RSI', value: 'rsi', type: 'indicator', isChart: true },
+	{ title: 'SAR', value: 'sar', type: 'indicator', isChart: false },
+	{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator', isChart: true },
+	{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator', isChart: false },
 ]
 
 //默认指标
 const defaultIndicator = [
 	{ title: 'VOL', value: 'vol', type: 'indicator', isChart: true },
-	{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true,},
 ]
 
 //默认均线
 const defaultMA = [
-	{ title: 'ma5',value: 'ma', type: 'ma', options:{ windowSize: 5 }},
-	{ title: 'ma10',value: 'ma', type: 'ma', options:{ windowSize: 10 }},
-	{ title: 'ma20',value: 'ma', type: 'ma', options:{ windowSize: 20 }},
+	{ title: 'ma5', value: 'ma', type: 'ma', options: { windowSize: 5 } },
+	{ title: 'ma10', value: 'ma', type: 'ma', options: { windowSize: 10 } },
+	{ title: 'ma20', value: 'ma', type: 'ma', options: { windowSize: 20 } },
 ]
 
 
@@ -66,26 +65,36 @@ class ChartComponent extends React.Component {
 			period: 6,
 			showPeriodList: false,
 			showIndicatorList: false,
-			indicateList : [
-				{ title: 'MACD', value: 'macd', type: 'indicator' ,isChart:true},
-				{ title: 'ATR', value: 'atr', type: 'indicator' ,isChart:true},
-				{ title: 'BOLL', value: 'bollingerBand', type: 'indicator' ,isChart:false},
-				{ title: 'CCI', value: 'cci', type: 'indicator' ,isChart:true},
-				{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator' ,isChart:false},
-				{ title: 'KDJ', value: 'kdj', type: 'indicator' ,isChart:true},
-				{ title: 'Elder Ray', value: 'elderRay', type: 'indicator' ,isChart:true},
-				{ title: 'Force Index', value: 'forceIndex', type: 'indicator' ,isChart:true},
-				{ title: 'EMA', value: 'ema', type: 'ma' ,isChart:false},
-				{ title: 'sma', value: 'sma', type: 'ma' ,isChart:false},
-				{ title: 'TMA', value: 'tma', type: 'ma' ,isChart:false},
-				{ title: 'WMA', value: 'wma', type: 'ma' ,isChart:false},
-				{ title: 'RSI', value: 'rsi', type: 'indicator' ,isChart:true},
-				{ title: 'SAR', value: 'sar', type: 'indicator' ,isChart:false},
-				{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator' ,isChart:true},
-				{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator' ,isChart:false},
+			indicateList: [
+				{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true },
+				{ title: 'ATR', value: 'atr', type: 'indicator', isChart: true },
+				{ title: 'BOLL', value: 'bollingerBand', type: 'indicator', isChart: false, candleArea: true },  //candleArea 图表上只能显示其中一个
+				{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true },
+				{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator', isChart: false },
+				{ title: 'KDJ', value: 'kdj', type: 'indicator', isChart: true },
+				{ title: 'Elder Ray', value: 'elderRay', type: 'indicator', isChart: true },
+				{ title: 'Force Index', value: 'forceIndex', type: 'indicator', isChart: true },
+				{ title: 'EMA', value: 'ema', type: 'ma', isChart: false },
+				{ title: 'sma', value: 'sma', type: 'ma', isChart: false },
+				{ title: 'TMA', value: 'tma', type: 'ma', isChart: false },
+				{ title: 'WMA', value: 'wma', type: 'ma', isChart: false },
+				{ title: 'RSI', value: 'rsi', type: 'indicator', isChart: true },
+				{ title: 'SAR', value: 'sar', type: 'indicator', isChart: false },
+				{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator', isChart: true },
+				{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator', isChart: false },
 			]
 		}
 	}
+
+	UNSAFE_componentWillMount(){
+		let chartSetting = localStorage.getItem('chartSetting')
+		if(chartSetting&&JSON.parse(chartSetting).length>0){
+			this.setState({selectedIndicator:JSON.parse(chartSetting)})
+		}else{
+			this.setState({selectedIndicator:[...defaultIndicator,...defaultMA]})
+		}
+	}
+
 	componentDidMount() {
 		const { stockCode } = this.state
 
@@ -155,21 +164,45 @@ class ChartComponent extends React.Component {
 
 	//添加指标
 	onAddIndicator(e) {
-		this.setState({showIndicatorList:false})
-		let {selectedIndicator,indicateList} = this.state
-		const newIndicator = lodash.cloneDeep(indicateList[e])
-		selectedIndicator.push(newIndicator)
-		this.setState({selectedIndicator})
+		this.setState({ showIndicatorList: false })
+		let { selectedIndicator, indicateList } = this.state
+
+		//如果是只表上只能显示一个的
+		if (indicateList[e].candleArea) {
+			//判断是否是重复点击取消当前
+			let isCancle = false
+			selectedIndicator.forEach((item, index) => {
+				if (item.value === indicateList[e].value) {
+					isCancle = true
+					selectedIndicator.splice(index, 1)
+				}
+			})
+			if (!isCancle) {
+				selectedIndicator = selectedIndicator.filter(item => !item.candleArea)
+				const newIndicator = lodash.cloneDeep(indicateList[e])
+				selectedIndicator.push(newIndicator)
+			}
+		} else {
+			const newIndicator = lodash.cloneDeep(indicateList[e])
+			selectedIndicator.push(newIndicator)
+		}
+		this.setState({ selectedIndicator },()=>{
+			this.saveChart()
+		})
+	}
+
+	//本地保存已选指标
+	saveChart(){
+		const {selectedIndicator} = this.state
+		localStorage.setItem('chartSetting',JSON.stringify(selectedIndicator))
 	}
 
 
 	render() {
-		let { quote, period, periodName, showPeriodList, showIndicatorList ,selectedIndicator} = this.state
+		let { quote, period, periodName, showPeriodList, showIndicatorList, selectedIndicator } = this.state
 		const { upColor, downColor } = options
-
-		//合并默认指标
-		selectedIndicator = [...defaultIndicator, ...defaultMA,...selectedIndicator]
-	
+		selectedIndicator.forEach((item,index)=>item.indicatorId=index)
+		
 		return (
 			<div className="stock-chart-wrapper">
 				<div className="chart-title">

@@ -24,8 +24,8 @@ class SingleValueTooltip extends Component {
 		const { chartConfig: { width, height } } = moreProps;
 		const currentItem = displayValuesFor(this.props, moreProps);
 
-		const xDisplayValue = isDefined(currentItem) && isDefined(xAccessor(currentItem)) ? xDisplayFormat(xAccessor(currentItem)) : "n/a";
-		const yDisplayValue = isDefined(currentItem) && isDefined(yAccessor(currentItem)) ? yDisplayFormat(yAccessor(currentItem)) : "n/a";
+		const xDisplayValue = isDefined(currentItem) && isDefined(xAccessor(currentItem)) ? xDisplayFormat(xAccessor(currentItem)) : "--";
+		const yDisplayValue = isDefined(currentItem) && isDefined(yAccessor(currentItem)) ? yDisplayFormat(yAccessor(currentItem)) : "--";
 
 		const { origin: originProp } = this.props;
 		const origin = functor(originProp);
