@@ -30,7 +30,7 @@ const mouseEdgeAppearance = {
 export default class MACD extends Component {
 
     render() {
-        const { calculator } = this.props
+        const { calculator ,indicatorId} = this.props
         return (
             <>
                 <YAxis axisAt="right" orient="right" ticks={3} />
@@ -47,7 +47,7 @@ export default class MACD extends Component {
                     yAccessor={d => d.macd}
                     options={calculator.options()}
                     appearance={macdAppearance}
-                    onClick={(e)=>console.log(e)}
+                    onClick={()=>this.props.setIndcatorParameter(indicatorId)}
                 />
                 {this.props.children}
             </>

@@ -6,6 +6,7 @@ import Chart from './components/example/Main'
 
 import { getKline, lastKline, getQuote } from './service/traderoom.js'
 import { changeNumber } from './utils/utils'
+import SetIndicatorModal from './SetIndicatorModal'
 
 import './App.css'
 
@@ -16,14 +17,15 @@ const options = {
 
 //指标列表
 const indicateList = [
-	{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true },
-	{ title: 'ATR', value: 'atr', type: 'indicator', isChart: true },
-	{ title: 'BOLL', value: 'bollingerBand', type: 'indicator', isChart: false, candleArea: true },
-	{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true },
+	{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true, options: { fast: 12, slow: 26, signal: 9, sourcePath: "close" } },
+	{ title: 'ATR', value: 'atr', type: 'indicator', isChart: true, options: { windowSize: 14 } },
+	{ title: 'BOLL', value: 'bollingerBand', type: 'indicator', isChart: false, candleArea: true, options: { windowSize: 20, sourcePath: "close", multiplier: 2, movingAverageType: "sma" } },
+	{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true, options: { windowSize: 14 } },
 	{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator', isChart: false },
 	{ title: 'KDJ', value: 'kdj', type: 'indicator', isChart: true },
 	{ title: 'Elder Ray', value: 'elderRay', type: 'indicator', isChart: true },
 	{ title: 'Force Index', value: 'forceIndex', type: 'indicator', isChart: true },
+	{ title: 'MA', value: 'ma', type: 'ma', options: { windowSize: 10, sourcePath: "close" } },
 	{ title: 'EMA', value: 'ema', type: 'ma', isChart: false },
 	{ title: 'SMA', value: 'sma', type: 'ma', isChart: false },
 	{ title: 'TMA', value: 'tma', type: 'ma', isChart: false },
@@ -41,9 +43,9 @@ const defaultIndicator = [
 
 //默认均线
 const defaultMA = [
-	{ title: 'ma5', value: 'ma', type: 'ma', options: { windowSize: 5 } },
-	{ title: 'ma10', value: 'ma', type: 'ma', options: { windowSize: 10 } },
-	{ title: 'ma20', value: 'ma', type: 'ma', options: { windowSize: 20 } },
+	{ title: 'MA', value: 'ma', type: 'ma', options: { windowSize: 5, sourcePath: "close" } },
+	{ title: 'MA', value: 'ma', type: 'ma', options: { windowSize: 10, sourcePath: "close" } },
+	{ title: 'MA', value: 'ma', type: 'ma', options: { windowSize: 20, sourcePath: "close" } },
 ]
 
 
@@ -65,33 +67,18 @@ class ChartComponent extends React.Component {
 			period: 6,
 			showPeriodList: false,
 			showIndicatorList: false,
-			indicateList: [
-				{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true },
-				{ title: 'ATR', value: 'atr', type: 'indicator', isChart: true },
-				{ title: 'BOLL', value: 'bollingerBand', type: 'indicator', isChart: false, candleArea: true },  //candleArea 图表上只能显示其中一个
-				{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true },
-				{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator', isChart: false },
-				{ title: 'KDJ', value: 'kdj', type: 'indicator', isChart: true },
-				{ title: 'Elder Ray', value: 'elderRay', type: 'indicator', isChart: true },
-				{ title: 'Force Index', value: 'forceIndex', type: 'indicator', isChart: true },
-				{ title: 'EMA', value: 'ema', type: 'ma', isChart: false },
-				{ title: 'sma', value: 'sma', type: 'ma', isChart: false },
-				{ title: 'TMA', value: 'tma', type: 'ma', isChart: false },
-				{ title: 'WMA', value: 'wma', type: 'ma', isChart: false },
-				{ title: 'RSI', value: 'rsi', type: 'indicator', isChart: true },
-				{ title: 'SAR', value: 'sar', type: 'indicator', isChart: false },
-				{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator', isChart: true },
-				{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator', isChart: false },
-			]
+			indicatorParam: {},
+			visible: false
+
 		}
 	}
 
-	UNSAFE_componentWillMount(){
+	UNSAFE_componentWillMount() {
 		let chartSetting = localStorage.getItem('chartSetting')
-		if(chartSetting&&JSON.parse(chartSetting).length>0){
-			this.setState({selectedIndicator:JSON.parse(chartSetting)})
-		}else{
-			this.setState({selectedIndicator:[...defaultIndicator,...defaultMA]})
+		if (chartSetting) {
+			this.setState({ selectedIndicator: JSON.parse(chartSetting) })
+		} else {
+			this.setState({ selectedIndicator: [...defaultIndicator, ...defaultMA] })
 		}
 	}
 
@@ -165,7 +152,7 @@ class ChartComponent extends React.Component {
 	//添加指标
 	onAddIndicator(e) {
 		this.setState({ showIndicatorList: false })
-		let { selectedIndicator, indicateList } = this.state
+		let { selectedIndicator } = this.state
 
 		//如果是只表上只能显示一个的
 		if (indicateList[e].candleArea) {
@@ -186,23 +173,45 @@ class ChartComponent extends React.Component {
 			const newIndicator = lodash.cloneDeep(indicateList[e])
 			selectedIndicator.push(newIndicator)
 		}
-		this.setState({ selectedIndicator },()=>{
+		this.setState({ selectedIndicator }, () => {
 			this.saveChart()
 		})
 	}
 
 	//本地保存已选指标
-	saveChart(){
-		const {selectedIndicator} = this.state
-		localStorage.setItem('chartSetting',JSON.stringify(selectedIndicator))
+	saveChart() {
+		const { selectedIndicator } = this.state
+		localStorage.setItem('chartSetting', JSON.stringify(selectedIndicator))
+	}
+
+	setIndcatorParameter(index) {
+		const { selectedIndicator } = this.state
+		console.log(selectedIndicator[index])
+		this.setState({ indicatorParam: selectedIndicator[index] })
+	}
+
+	removeIndicator(index) {
+		const { selectedIndicator } = this.state
+		selectedIndicator.splice(index,1)
+		this.setState({selectedIndicator,indicatorParam: {}},()=>{
+			this.saveChart()
+		})
+	}
+
+	changeIndicatorParam(index,options){
+		let { selectedIndicator } = this.state 
+		selectedIndicator[index].options = options
+		this.setState({selectedIndicator,indicatorParam: {}},()=>{
+			this.saveChart()
+		})
 	}
 
 
 	render() {
-		let { quote, period, periodName, showPeriodList, showIndicatorList, selectedIndicator } = this.state
+		let { quote, period, periodName, showPeriodList, showIndicatorList, selectedIndicator, indicatorParam } = this.state
 		const { upColor, downColor } = options
-		selectedIndicator.forEach((item,index)=>item.indicatorId=index)
-		
+		selectedIndicator.forEach((item, index) => item.indicatorId = index)
+
 		return (
 			<div className="stock-chart-wrapper">
 				<div className="chart-title">
@@ -248,10 +257,18 @@ class ChartComponent extends React.Component {
 						period={period}
 						height={600}
 						selectedIndicator={selectedIndicator}
+						setIndcatorParameter={this.setIndcatorParameter.bind(this)}
 					/> :
 
 					<div>无数据</div>
 				}
+				{indicatorParam.value ? <SetIndicatorModal
+					indicatorParam={indicatorParam}
+					closeModal={() => this.setState({ indicatorParam: {} })}
+					removeIndicator={this.removeIndicator.bind(this)}
+					changeIndicatorParam={this.changeIndicatorParam.bind(this)}
+				/> : null}
+
 			</div>
 
 		)

@@ -34,7 +34,7 @@ export default function Vol(props) {
                 fill={d => d.close > d.open ? color.upColor : color.downColor}
                 opacity={0.7}
             />
-
+            {props.children}
         </>
     )
 }

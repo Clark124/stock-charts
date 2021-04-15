@@ -76,7 +76,7 @@ class MainCharts extends React.Component {
 		movingAverage.forEach((item, index) => {
 			if (IndicatorList[item.value]) {
 				let indicator = IndicatorList[item.value]
-				let calculator = indicator().id(index).options(item.options ? item.options : {}).merge((d, c) => { d[item.title] = c }).accessor(d => d[item.title])
+				let calculator = indicator().id(index).options(item.options).merge((d, c) => { d[item.value+item.options.windowSize] = c }).accessor(d => d[item.value+item.options.windowSize])
 				calculatedData = calculator(calculatedData)
 				item.calculator = calculator
 			}
@@ -84,7 +84,6 @@ class MainCharts extends React.Component {
 		})
 
 		const movingAverageTooltipOption = movingAverage.map(item => {
-			console.log(item)
 			return {
 				yAccessor: item.calculator.accessor(),
 				type: item.value,
@@ -178,7 +177,7 @@ class MainCharts extends React.Component {
 					})}
 
 					<MovingAverageTooltip
-						onClick={e => console.log(e)}
+						onClick={e => this.props.setIndcatorParameter(e.indicatorId)}
 						origin={[0, 15]}
 						textFill={'#AAAAAA'}
 						options={movingAverageTooltipOption}
@@ -198,7 +197,7 @@ class MainCharts extends React.Component {
 							padding={item.padding}
 							key={index + 2}
 						>
-							<Component {...item} >
+							<Component {...item} setIndcatorParameter={(id)=>this.props.setIndcatorParameter(id)}>
 								{indicatorcharts.length === index + 1 ?
 									<>
 										<XAxis axisAt="bottom" orient="bottom" />
