@@ -4,6 +4,7 @@
 export { default as Annotate } from "./Annotate";
 export { default as LabelAnnotation } from "./LabelAnnotation";
 export { default as SvgPathAnnotation } from "./SvgPathAnnotation";
+export { default as SvgPathAnnotation_1 } from "./SvgPathAnnotation_1";
 export { default as Label } from "./Label";
 
 const halfWidth = 10;

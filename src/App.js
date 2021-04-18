@@ -88,7 +88,8 @@ class ChartComponent extends React.Component {
 		this.onGetKline(stockCode)
 		this.onGetQuote(stockCode)
 		// setInterval(()=>{
-		// 	this.onGetLastKline(code)
+		// 	this.onGetLastKline(stockCode)
+		// 	this.onGetQuote(stockCode)
 		// },3000)
 
 	}
@@ -101,6 +102,12 @@ class ChartComponent extends React.Component {
 		getKline(data).then(res => {
 			let data = res.data.candle[code]
 			data = changeNumber(data, 2)
+			
+			const signalBuy = {key:'buyOpen',value:0}
+			const signalSell = {key:'buyFlat',value:0}
+			data[290].signal = signalBuy
+			data[298].signal = signalSell
+			console.log(data)
 			this.setState({ data })
 		})
 	}

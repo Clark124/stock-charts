@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { timeFormat } from "d3-time-format";
 
 import { ChartCanvas, Chart } from "../Stockcharts";
-// import {} from "../Stockcharts/lib/series";
+import { Annotate ,buyPath,SvgPathAnnotation_1} from "../Stockcharts/lib/annotation";
 import { XAxis } from "../Stockcharts/lib/axes";
 import {
 	CrossHairCursor,
@@ -48,7 +48,7 @@ const mouseEdgeAppearance = {
 
 class MainCharts extends React.Component {
 
-	
+
 	render() {
 		let { type, data: initialData, width, ratio, period, height, selectedIndicator } = this.props;
 
@@ -76,7 +76,7 @@ class MainCharts extends React.Component {
 		movingAverage.forEach((item, index) => {
 			if (IndicatorList[item.value]) {
 				let indicator = IndicatorList[item.value]
-				let calculator = indicator().id(index).options(item.options).merge((d, c) => { d[item.value+item.options.windowSize] = c }).accessor(d => d[item.value+item.options.windowSize])
+				let calculator = indicator().id(index).options(item.options).merge((d, c) => { d[item.value + item.options.windowSize] = c }).accessor(d => d[item.value + item.options.windowSize])
 				calculatedData = calculator(calculatedData)
 				item.calculator = calculator
 			}
@@ -89,7 +89,7 @@ class MainCharts extends React.Component {
 				type: item.value,
 				stroke: item.calculator.stroke(),
 				windowSize: item.calculator.options().windowSize,
-				indicatorId:item.indicatorId
+				indicatorId: item.indicatorId
 			}
 		})
 
@@ -143,6 +143,37 @@ class MainCharts extends React.Component {
 		}
 		const xExtents = [start, end];
 
+		const annotationProps = {
+			path: buyPath,
+			y: ({ yScale, datum, d }) => {
+				return datum.signal && (datum.signal['key'].includes('buy') ? yScale(datum.low) + 20 + 28 * datum.signal.value : yScale(datum.high) - 20 - 28 * datum.signal.value)
+			},
+			fill: d => {
+				if (d.signal) {
+					return d.signal.key === 'sell' ? '#ff6060' : d.signal.key.includes("sell") ? '#2be594' : '#ff6060'
+				} else {
+					return '#000000'
+				}
+			},
+			tooltip: d => {
+				// console.log(d)
+				if (d.signal !== undefined) {
+					let str = '';
+					switch (d.signal.key) {
+						case 'buyOpen': str = "买开"; break;
+						case 'sellOpen': str = "卖开"; break;
+						case 'sellFlat': str = "卖平"; break;
+						case 'buyFlat': str = "买平"; break;
+						case 'buy': str = "买"; break;
+						case 'sell': str = "卖"; break;
+						default: ;
+					}
+					return str;
+				}
+			},
+		};
+
+
 		return (
 			<ChartCanvas height={height}
 				width={width}
@@ -172,7 +203,7 @@ class MainCharts extends React.Component {
 
 					{movingAverage.map((item, index) => {
 						return (
-							<MovingAverage {...item} key={index} selectedIndex={index}/>
+							<MovingAverage {...item} key={index} selectedIndex={index} />
 						)
 					})}
 
@@ -182,6 +213,10 @@ class MainCharts extends React.Component {
 						textFill={'#AAAAAA'}
 						options={movingAverageTooltipOption}
 					/>
+
+					<Annotate with={SvgPathAnnotation_1}
+						when={d => d.signal}
+						usingProps={annotationProps} />
 
 
 				</Chart>
@@ -197,7 +232,7 @@ class MainCharts extends React.Component {
 							padding={item.padding}
 							key={index + 2}
 						>
-							<Component {...item} setIndcatorParameter={(id)=>this.props.setIndcatorParameter(id)}>
+							<Component {...item} setIndcatorParameter={(id) => this.props.setIndcatorParameter(id)}>
 								{indicatorcharts.length === index + 1 ?
 									<>
 										<XAxis axisAt="bottom" orient="bottom" />
