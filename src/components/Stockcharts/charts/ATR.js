@@ -14,7 +14,7 @@ const mouseEdgeAppearance = {
 };
 
 export default function ATR(props) {
-    const {calculator} = props
+    const {calculator,indicatorId} = props
     return (
         <>
             <YAxis axisAt="right" orient="right" ticks={3} />
@@ -25,12 +25,13 @@ export default function ATR(props) {
                 {...mouseEdgeAppearance}
             />
 
-            <LineSeries yAccessor={d => d.atr}/>
+            <LineSeries yAccessor={d => d['atr'+indicatorId]}/>
             <SingleValueTooltip
-                yAccessor={d => d.atr}
+                yAccessor={d => d['atr'+indicatorId]}
                 origin={[0, 15]}
                 yLabel={`ATR(${calculator.options().windowSize})`}
                 valueFill={'#AAAAAA'}
+                onClick={()=>props.setIndcatorParameter(indicatorId)}
             />
             {props.children}
         </>

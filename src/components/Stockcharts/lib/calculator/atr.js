@@ -12,7 +12,6 @@ export default function name() {
 
 	function calculator(data) {
 		const { windowSize } = options;
-
 		const trueRangeAlgorithm = slidingWindow()
 			.windowSize(2)
 			.source(source)
@@ -39,7 +38,7 @@ export default function name() {
 				prevATR = atr;
 				return atr;
 			});
-
+		
 		const newData = atrAlgorithm(trueRangeAlgorithm(data));
 
 		return newData;

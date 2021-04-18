@@ -40,11 +40,11 @@ export default class MACD extends Component {
                     displayFormat={format(".2f")}
                     {...mouseEdgeAppearance}
                 />
-                <MACDSeries yAccessor={d => d.macd}
+                <MACDSeries yAccessor={d => d['macd'+indicatorId]}
                     {...macdAppearance} />
                 <MACDTooltip
                     origin={[0, 15]}
-                    yAccessor={d => d.macd}
+                    yAccessor={d => d['macd'+indicatorId]}
                     options={calculator.options()}
                     appearance={macdAppearance}
                     onClick={()=>this.props.setIndcatorParameter(indicatorId)}

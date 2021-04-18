@@ -9,7 +9,7 @@ const bbStroke = {
 const bbFill = "#4682B4";
 
 export default function BollingerBand(props) {
-    const { calculator } = props
+    const { calculator ,indicatorId} = props
     return (
         <>
             <BollingerSeries yAccessor={d => d.bollingerBand}
@@ -21,6 +21,7 @@ export default function BollingerBand(props) {
                 yAccessor={d => d.bollingerBand}
                 options={calculator.options()}
                 textFill="#AAAAAA"
+                onClick={()=>props.setIndcatorParameter(indicatorId)}
             />
 
         </>

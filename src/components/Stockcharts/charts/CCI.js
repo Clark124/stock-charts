@@ -14,7 +14,7 @@ const mouseEdgeAppearance = {
 };
 
 export default function CCI(props) {
-    const {calculator} = props
+    const {calculator,indicatorId} = props
     return (
         <>
             <YAxis axisAt="right" orient="right" ticks={3} />
@@ -25,12 +25,13 @@ export default function CCI(props) {
                 {...mouseEdgeAppearance}
             />
 
-            <LineSeries yAccessor={d => d.cci}/>
+            <LineSeries yAccessor={d => d['cci'+indicatorId]}/>
             <SingleValueTooltip
-                yAccessor={d => d.cci}
+                yAccessor={d => d['cci'+indicatorId]}
                 origin={[0, 15]}
                 yLabel={`CCI(${calculator.options().windowSize})`}
                 valueFill={'#AAAAAA'}
+                onClick={()=>props.setIndcatorParameter(indicatorId)}
             />
             {props.children}
         </>

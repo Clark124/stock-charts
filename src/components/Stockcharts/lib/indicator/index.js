@@ -23,6 +23,7 @@ export { default as elderImpulse } from "./elderImpulse";
 export { default as compare } from "./compare";
 export { default as cci} from './cci'
 export { default as kdj} from './kdj'
+export { default as keltnerChannel} from './KeltnerChannel'
 
 
 export {

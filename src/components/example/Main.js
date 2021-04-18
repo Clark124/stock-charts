@@ -16,12 +16,12 @@ import { MovingAverageTooltip, } from "../Stockcharts/lib/tooltip";
 import { fitWidth } from "../Stockcharts/lib/helper";
 // import { formatNumber } from '../Stockcharts/lib/utils/index'
 // import { last } from "../Stockcharts/lib/utils";
-import { ma, macd, sma, atr, cci, kdj, bollingerBand } from "../Stockcharts/lib/indicator";  //用于计算
-import { MACD, Vol, MovingAverage, CandleChart, ATR, CCI, KDJ, BollingerBand } from '../Stockcharts/charts/index'  //指标图形
+import { ma, macd, sma, atr, cci, kdj, bollingerBand ,keltnerChannel,rsi} from "../Stockcharts/lib/indicator";  //用于计算
+import { MACD, Vol, MovingAverage, CandleChart, ATR, CCI, KDJ, BollingerBand,KeltnerChannel,RSI } from '../Stockcharts/charts/index'  //指标图形
 
 
 const IndicatorList = {
-	ma, macd, sma, atr, cci, kdj, bollingerBand
+	ma, macd, sma, atr, cci, kdj, bollingerBand,keltnerChannel,rsi
 }
 
 const ChartComponent = {
@@ -30,7 +30,9 @@ const ChartComponent = {
 	atr: ATR,
 	cci: CCI,
 	kdj: KDJ,
-	bollingerBand: BollingerBand
+	bollingerBand: BollingerBand,
+	keltnerChannel:KeltnerChannel,
+	rsi:RSI
 }
 
 const mouseEdgeAppearance = {
@@ -112,11 +114,8 @@ class MainCharts extends React.Component {
 			if (item.value === 'vol') {
 				item.yExtents = d => d.volume
 				item.padding = { top: 10, bottom: 0 }
-			} else if (item.value === 'macd') {
-				item.yExtents = d => d.macd
-				item.padding = { top: 10, bottom: 10 }
-			} else if (item.value === 'atr' || item.value === 'cci' || item.value === 'kdj') {
-				item.yExtents = d => d[item.value]
+			} else if (item.value === 'macd'||item.value === 'atr' || item.value === 'cci' || item.value === 'kdj'||item.value === 'rsi') {
+				item.yExtents = d => d[item.value+item.indicatorId]
 				item.padding = { top: 10, bottom: 10 }
 			}
 
@@ -125,7 +124,7 @@ class MainCharts extends React.Component {
 			if (IndicatorList[item.value]) {
 				let indicator = IndicatorList[item.value]
 
-				calculator = indicator().options(item.options ? item.options : {}).merge((d, c) => { d[item.value] = c }).accessor(d => d[item.value])
+				calculator = indicator().options(item.options ? item.options : {}).merge((d, c) => { d[item.value+item.indicatorId] = c }).accessor(d => d[item.value+item.indicatorId])
 				calculatedData = calculator(calculatedData)
 			}
 			item.calculator = calculator
@@ -134,7 +133,7 @@ class MainCharts extends React.Component {
 
 		const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(d => d.date);
 		const { data, xScale, xAccessor, displayXAccessor, } = xScaleProvider(calculatedData);
-
+	
 		//截取最近150根线
 		const start = data.length + 10
 		let end = 0
@@ -196,7 +195,7 @@ class MainCharts extends React.Component {
 					{candleArea.map((item, index) => {
 						const Component = ChartComponent[item.value]
 						return (
-							<Component {...item} key={index} />
+							<Component {...item} key={index} setIndcatorParameter={(id) => this.props.setIndcatorParameter(id)}/>
 						)
 					})}
 
@@ -214,9 +213,9 @@ class MainCharts extends React.Component {
 						options={movingAverageTooltipOption}
 					/>
 
-					<Annotate with={SvgPathAnnotation_1}
+					{/* <Annotate with={SvgPathAnnotation_1}
 						when={d => d.signal}
-						usingProps={annotationProps} />
+						usingProps={annotationProps} /> */}
 
 
 				</Chart>

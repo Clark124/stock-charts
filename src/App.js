@@ -20,17 +20,17 @@ const indicateList = [
 	{ title: 'MACD', value: 'macd', type: 'indicator', isChart: true, options: { fast: 12, slow: 26, signal: 9, sourcePath: "close" } },
 	{ title: 'ATR', value: 'atr', type: 'indicator', isChart: true, options: { windowSize: 14 } },
 	{ title: 'BOLL', value: 'bollingerBand', type: 'indicator', isChart: false, candleArea: true, options: { windowSize: 20, sourcePath: "close", multiplier: 2, movingAverageType: "sma" } },
-	{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true, options: { windowSize: 14 } },
-	{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator', isChart: false },
-	{ title: 'KDJ', value: 'kdj', type: 'indicator', isChart: true },
+	{ title: 'CCI', value: 'cci', type: 'indicator', isChart: true, options: { windowSize: 14 } ,},
+	{ title: 'KeltnerChannel', value: 'keltnerChannel', type: 'indicator', isChart: false ,candleArea: true, options: { windowSize: 20, sourcePath: "close", multiplier: 2, movingAverageType: "sma" }},
+	{ title: 'KDJ', value: 'kdj', type: 'indicator', isChart: true, options:{windowSize: 9,kWindowSize: 3,dWindowSize: 3,}},
 	{ title: 'Elder Ray', value: 'elderRay', type: 'indicator', isChart: true },
 	{ title: 'Force Index', value: 'forceIndex', type: 'indicator', isChart: true },
 	{ title: 'MA', value: 'ma', type: 'ma', options: { windowSize: 10, sourcePath: "close" } },
 	{ title: 'EMA', value: 'ema', type: 'ma', isChart: false },
-	{ title: 'SMA', value: 'sma', type: 'ma', isChart: false },
+	{ title: 'SMA', value: 'sma', type: 'ma', isChart: false ,options: { windowSize: 10, sourcePath: "close" }},
 	{ title: 'TMA', value: 'tma', type: 'ma', isChart: false },
 	{ title: 'WMA', value: 'wma', type: 'ma', isChart: false },
-	{ title: 'RSI', value: 'rsi', type: 'indicator', isChart: true },
+	{ title: 'RSI', value: 'rsi', type: 'indicator', isChart: true ,options:{windowSize: 14,sourcePath: "close"}},
 	{ title: 'SAR', value: 'sar', type: 'indicator', isChart: false },
 	{ title: 'Stochastic', value: 'stochasticOscillator', type: 'indicator', isChart: true },
 	{ title: 'Vol Profile', value: 'volumeProfile', type: 'indicator', isChart: false },
@@ -107,7 +107,7 @@ class ChartComponent extends React.Component {
 			const signalSell = {key:'buyFlat',value:0}
 			data[290].signal = signalBuy
 			data[298].signal = signalSell
-			console.log(data)
+			// console.log(data)
 			this.setState({ data })
 		})
 	}
@@ -191,12 +191,14 @@ class ChartComponent extends React.Component {
 		localStorage.setItem('chartSetting', JSON.stringify(selectedIndicator))
 	}
 
+	//显示修改指标弹框
 	setIndcatorParameter(index) {
 		const { selectedIndicator } = this.state
 		console.log(selectedIndicator[index])
 		this.setState({ indicatorParam: selectedIndicator[index] })
 	}
 
+	//删除指标
 	removeIndicator(index) {
 		const { selectedIndicator } = this.state
 		selectedIndicator.splice(index,1)
@@ -205,6 +207,7 @@ class ChartComponent extends React.Component {
 		})
 	}
 
+	//修改指标参数
 	changeIndicatorParam(index,options){
 		let { selectedIndicator } = this.state 
 		selectedIndicator[index].options = options

@@ -18,7 +18,7 @@ const kdjAppearance = {
 };
 
 export default function KDJ(props) {
-    const { calculator } = props
+    const { calculator,indicatorId } = props
     return (
         <>
             <YAxis axisAt="right" orient="right" ticks={3} />
@@ -29,15 +29,15 @@ export default function KDJ(props) {
                 {...mouseEdgeAppearance}
             />
 
-            <KDJSeries yAccessor={d => d.kdj} />
+            <KDJSeries yAccessor={d => d['kdj'+indicatorId]} />
             <KdjTooltip
-                yAccessor={d => d.kdj}
+                yAccessor={d => d['kdj'+indicatorId]}
                 origin={[0, 15]}
                 appearance={{
                     ...kdjAppearance
                 }}
                 options={calculator.options()}
-
+                onClick={()=>props.setIndcatorParameter(indicatorId)}
             />
             {props.children}
         </>

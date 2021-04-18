@@ -24,3 +24,4 @@ export { default as VolumeProfileSeries } from "./VolumeProfileSeries";
 export { default as StraightLine } from "./StraightLine";
 export { default as SARSeries } from "./SARSeries";
 export { default as KDJSeries } from './kdj'
+export { default as KeltnerChannel} from './KeltnerChannel'
